@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+{% autoescape true %}
+<html>
+  <head>
+  	<title>Viikkoharkka 3</title>
+  </head>
+  <body>
+    
+    <h3>Tallennus</h3>
+    
+    <form action="/addfile" method="POST" enctype="multipart/form-data">
+	    <div><label>Tallenna nimellä:</label><input type="text" name="filename" /></div>
+	    <div><input type="file" name="filecontent" /></div>
+	    <div><input type="submit" value="Tallenna" /></div>
+    </form>
+    
+    {% if added_file_uri %}
+        <p>
+    	   Tallennettiin tiedosto: <a href="{{ added_file_uri }}">{{ added_file_uri }}</a>
+        </p>
+    {% endif %}
+    
+  </body>
+</html>
+{% endautoescape %}
