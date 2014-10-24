@@ -398,7 +398,9 @@ def local_run():
 
 def local_api_url():
   """Return URL for GCS emulation on dev appserver."""
-  return 'http://%s%s' % (os.environ.get('HTTP_HOST'), LOCAL_GCS_ENDPOINT)
+  host = os.environ.get('SERVER_NAME')
+  port = os.environ.get('SERVER_PORT')
+  return 'http://%s:%s%s' % (host, port, LOCAL_GCS_ENDPOINT)
 
 
 def memory_usage(method):
