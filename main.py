@@ -7,6 +7,7 @@ import logging
 
 import cloudstorage as gcs
 from google.appengine.api import app_identity
+from google.appengine.api import images
 
 BUCKET_NAME = os.environ.get('BUCKET_NAME',
                              app_identity.get_default_gcs_bucket_name())
@@ -31,7 +32,10 @@ class AddFileHandler(webapp2.RequestHandler):
         name = self.request.get('filename')
         content = self.request.POST['filecontent']
         if name and not isinstance(content, basestring):
-            saved = _save_file(name, content.value, content.type)
+            if content.type.lower().startswith('image/'):
+                saved = _save_file(name, _modify_image(content.value), content.type)
+            else:
+                saved = _save_file(name, content.value, content.type)
             if DEVELOPMENT:
                 # http://stackoverflow.com/questions/22174903/how-to-serve-cloudstorage-files-using-app-engine-sdk
                 added_file_uri = '//' + app_identity.get_default_version_hostname() + '/_ah/gcs' + saved
@@ -42,7 +46,13 @@ class AddFileHandler(webapp2.RequestHandler):
             added_file_uri = None  
         template = JINJA_ENVIRONMENT.get_template('index.html')
         self.response.write(template.render({"added_file_uri": added_file_uri}))
-        
+
+
+def _modify_image(content):
+    img = images.Image(content)
+    img.rotate(90)
+    return img.execute_transforms()
+
 
 def _save_file(name, content, content_type):
     logging.info("Saving %s (size: %i, type: %s)" % (name, len(content), content_type))
